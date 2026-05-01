@@ -36,9 +36,13 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
           registry-url: https://registry.npmjs.org/
+
+      - name: Update npm
+        if: ${{ steps.release.outputs.release_created }}
+        run: npm install --global npm@latest
 
       - name: Install dependencies
         if: ${{ steps.release.outputs.release_created }}
@@ -50,5 +54,6 @@ jobs:
 
       - name: Publish to npm
         if: ${{ steps.release.outputs.release_created }}
-        run: pnpm publish --provenance --access public
-
+        run: npm publish --access public
+        env:
+          HUSKY: 0
