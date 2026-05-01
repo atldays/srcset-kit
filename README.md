@@ -1,5 +1,10 @@
 # srcset-kit
 
+[![npm version](https://img.shields.io/npm/v/srcset-kit.svg?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/srcset-kit)
+[![npm downloads](https://img.shields.io/npm/dm/srcset-kit.svg?style=for-the-badge&color=blue)](https://www.npmjs.com/package/srcset-kit)
+[![CI](https://img.shields.io/github/actions/workflow/status/atldays/srcset-kit/ci.yml?style=for-the-badge)](https://github.com/atldays/srcset-kit/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE.md)
+
 Small, dependency-free tools for parsing, validating, and serializing HTML
 `srcset` values.
 
@@ -40,15 +45,16 @@ yarn add srcset-kit
 import {parse, stringify, validate} from "srcset-kit";
 
 const candidates = parse("image.png 1x, image@2x.png 2x");
+// [
+//   {url: "image.png", density: 1},
+//   {url: "image@2x.png", density: 2},
+// ]
 
-const result = validate(candidates, {
-  descriptor: "density",
-});
+const result = validate("image.png 1x, image@2x.png 2x");
+// result.valid === true
 
-if (result.valid) {
-  stringify(result.candidates);
-  // "image.png 1x, image@2x.png 2x"
-}
+const srcset = stringify(candidates);
+// "image.png 1x, image@2x.png 2x"
 ```
 
 ## Parse
