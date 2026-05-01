@@ -1,6 +1,6 @@
 {
   "name": "srcset-kit",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "srcset parser, validator, and stringifier for responsive images with zero dependencies.",
   "keywords": [
     "srcset",
