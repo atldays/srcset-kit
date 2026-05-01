@@ -1,0 +1,70 @@
+{
+  "name": "srcset-kit",
+  "version": "0.0.0",
+  "description": "Tools for working with the HTML srcset attribute.",
+  "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "Anjey Tsibylskij",
+    "url": "https://github.com/atldays"
+  },
+  "homepage": "https://github.com/atldays/srcset-kit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/atldays/srcset-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/atldays/srcset-kit/issues"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "prepare": "husky",
+    "build": "rslib build",
+    "test": "rstest run",
+    "test:watch": "rstest watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "pack:check": "publint",
+    "verify": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build && pnpm run pack:check"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,jsonc,md,yml,yaml}": "biome check --write --no-errors-on-unmatched"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.14",
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
+    "@rslib/core": "^0.21.3",
+    "@rstest/core": "^0.9.10",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "publint": "^0.3.18",
+    "typescript": "^6.0.3"
+  }
+}

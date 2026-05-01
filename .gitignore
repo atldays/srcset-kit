@@ -1,0 +1,16 @@
+.DS_Store
+.idea/
+
+node_modules/
+dist/
+coverage/
+.rslib/
+.rstest/
+.rsbuild/
+
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
