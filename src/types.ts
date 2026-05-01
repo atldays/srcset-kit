@@ -47,12 +47,12 @@ export type ValidationResult =
     | {
           valid: true;
           candidates: SrcsetCandidate[];
-          descriptorType: DescriptorType;
+          descriptor: DescriptorType;
           errors: [];
       }
     | {
           valid: false;
           candidates: SrcsetCandidate[];
-          descriptorType: DescriptorType;
+          descriptor: DescriptorType;
           errors: SrcsetValidationIssue[];
       };

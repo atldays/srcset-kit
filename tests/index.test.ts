@@ -140,6 +140,12 @@ describe("validate", () => {
         }
     });
 
+    test("returns the detected descriptor type", () => {
+        expect(validate("a.png").descriptor).toBe("none");
+        expect(validate("a.png 1x, b.png 2x").descriptor).toBe("density");
+        expect(validate("a.png 640w, b.png 1280w").descriptor).toBe("width");
+    });
+
     test("reports invalid string srcsets with stable codes", () => {
         expectInvalidCodes("", ["empty-srcset"]);
         expectInvalidCodes("   ", ["empty-srcset"]);

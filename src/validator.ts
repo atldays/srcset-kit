@@ -328,12 +328,12 @@ function getDescriptorType(candidates: NormalizedCandidate[]): DescriptorType {
 
 function buildValidationResult(
     candidates: SrcsetCandidate[],
-    descriptorType: DescriptorType,
+    descriptor: DescriptorType,
     errors: SrcsetValidationIssue[],
 ): ValidationResult {
     return errors.length === 0
-        ? {candidates, descriptorType, errors: [], valid: true}
-        : {candidates, descriptorType, errors, valid: false};
+        ? {candidates, descriptor, errors: [], valid: true}
+        : {candidates, descriptor, errors, valid: false};
 }
 
 function issue(
