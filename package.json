@@ -1,11 +1,18 @@
 {
   "name": "srcset-kit",
   "version": "0.0.1",
-  "description": "Tools for working with the HTML srcset attribute.",
+  "description": "srcset parser, validator, and stringifier for responsive images with zero dependencies.",
   "keywords": [
     "srcset",
+    "srcset-parser",
+    "srcset-validation",
+    "srcset-stringify",
     "responsive-images",
+    "responsive-image",
+    "image-srcset",
+    "data-url",
     "html",
+    "browser",
     "typescript"
   ],
   "type": "module",
