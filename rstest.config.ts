@@ -1,6 +1,6 @@
-import { defineConfig } from "@rstest/core";
+import {defineConfig} from "@rstest/core";
 
 export default defineConfig({
-  testEnvironment: "node",
-  include: ["tests/**/*.test.ts"],
+    testEnvironment: "node",
+    include: ["tests/**/*.test.ts"],
 });
