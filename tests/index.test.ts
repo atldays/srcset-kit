@@ -1,12 +1,6 @@
 import {describe, expect, test} from "@rstest/core";
 
-import {
-    parse,
-    type SrcsetCandidate,
-    SrcsetValidationError,
-    stringify,
-    validate,
-} from "../src/index";
+import {parse, type SrcsetCandidate, SrcsetValidationError, stringify, validate} from "../src";
 
 function expectInvalidCodes(input: string | SrcsetCandidate[], codes: string[]) {
     const result = validate(input);
