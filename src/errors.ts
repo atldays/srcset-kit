@@ -4,10 +4,6 @@ export class SrcsetError extends Error {
     override name = "SrcsetError";
 }
 
-export class SrcsetParseError extends SrcsetError {
-    override name = "SrcsetParseError";
-}
-
 export class SrcsetValidationError extends SrcsetError {
     override name = "SrcsetValidationError";
 

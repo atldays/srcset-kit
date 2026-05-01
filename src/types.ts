@@ -20,7 +20,7 @@ export type ParseOptions = {
 
 export type ValidateOptions = {
     baseUrl?: string | URL;
-    sizes?: string;
+    descriptor?: "width" | "density";
 };
 
 export type StringifyOptions = {
@@ -36,7 +36,7 @@ export type SrcsetValidationIssue = {
         | "invalid-descriptor"
         | "duplicate-descriptor"
         | "mixed-descriptors"
-        | "missing-width-descriptor"
+        | "mismatched-descriptor"
         | "multiple-descriptors";
     message: string;
     candidate?: string;

@@ -245,11 +245,25 @@ function descriptorSetIssues(
     for (const candidate of candidates) {
         kinds.add(candidate.descriptor.kind);
 
-        if (options.sizes !== undefined && candidate.descriptor.kind !== "width") {
+        if (options.descriptor === "width" && candidate.descriptor.kind !== "width") {
             issues.push(
                 issue(
-                    "missing-width-descriptor",
-                    "When sizes is supplied, every srcset candidate must use a width descriptor.",
+                    "mismatched-descriptor",
+                    "Every candidate must use a width descriptor.",
+                    candidate,
+                ),
+            );
+        }
+
+        if (
+            options.descriptor === "density" &&
+            candidate.descriptor.kind !== "density" &&
+            candidate.descriptor.kind !== "none"
+        ) {
+            issues.push(
+                issue(
+                    "mismatched-descriptor",
+                    "Every candidate must use a density descriptor.",
                     candidate,
                 ),
             );

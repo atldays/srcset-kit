@@ -1,6 +1,6 @@
 import {describe, expect, test} from "@rstest/core";
 
-import srcset, {
+import {
     parse,
     type SrcsetCandidate,
     SrcsetValidationError,
@@ -16,10 +16,10 @@ function expectInvalidCodes(input: string | SrcsetCandidate[], codes: string[]) 
 }
 
 describe("public API", () => {
-    test("exports the default srcset object and named functions", () => {
-        expect(srcset.parse).toBe(parse);
-        expect(srcset.validate).toBe(validate);
-        expect(srcset.stringify).toBe(stringify);
+    test("exports named functions", () => {
+        expect(typeof parse).toBe("function");
+        expect(typeof validate).toBe("function");
+        expect(typeof stringify).toBe("function");
     });
 });
 
@@ -112,6 +112,25 @@ describe("parse", () => {
     test("strict mode validates descriptor rules without URL context", () => {
         expect(parse("/image.png 1x", {strict: true})).toEqual([{url: "/image.png", density: 1}]);
     });
+
+    test("preserves URLs with fragments", () => {
+        expect(parse("image.png#section 1x")).toEqual([{url: "image.png#section", density: 1}]);
+    });
+
+    test("preserves URLs with ports", () => {
+        expect(parse("http://localhost:3000/image.png 2x")).toEqual([
+            {url: "http://localhost:3000/image.png", density: 2},
+        ]);
+    });
+
+    test("skips empty entries between commas", () => {
+        const result = parse("image.png 1x,   , image2.png 2x");
+
+        expect(result).toEqual([
+            {url: "image.png", density: 1},
+            {url: "image2.png", density: 2},
+        ]);
+    });
 });
 
 describe("validate", () => {
@@ -141,16 +160,32 @@ describe("validate", () => {
         expectInvalidCodes("a.png 640w, b.png", ["mixed-descriptors"]);
     });
 
-    test("requires width descriptors when sizes is supplied", () => {
-        expect(validate("a.png 640w, b.png 1280w", {sizes: "100vw"}).valid).toBe(true);
+    test("requires width descriptors when descriptor is 'width'", () => {
+        expect(validate("a.png 640w, b.png 1280w", {descriptor: "width"}).valid).toBe(true);
 
-        const result = validate("a.png 1x, b.png 2x", {sizes: "100vw"});
+        const result = validate("a.png 1x, b.png 2x", {descriptor: "width"});
 
         expect(result.valid).toBe(false);
         expect(result.errors.map(({code}) => code)).toEqual([
-            "missing-width-descriptor",
-            "missing-width-descriptor",
+            "mismatched-descriptor",
+            "mismatched-descriptor",
         ]);
+    });
+
+    test("requires density descriptors when descriptor is 'density'", () => {
+        expect(validate("a.png 1x, b.png 2x", {descriptor: "density"}).valid).toBe(true);
+
+        const result = validate("a.png 640w, b.png 1280w", {descriptor: "density"});
+
+        expect(result.valid).toBe(false);
+        expect(result.errors.map(({code}) => code)).toEqual([
+            "mismatched-descriptor",
+            "mismatched-descriptor",
+        ]);
+    });
+
+    test("allows fallback candidates with descriptor 'density'", () => {
+        expect(validate("a.png, b.png 2x", {descriptor: "density"}).valid).toBe(true);
     });
 
     test("validates parsed candidate arrays", () => {
@@ -175,6 +210,22 @@ describe("validate", () => {
         expect(validate("/image.png 1x", {baseUrl: "not a url"}).errors[0]?.code).toBe(
             "invalid-url",
         );
+    });
+
+    test("rejects candidate objects with NaN width", () => {
+        expectInvalidCodes([{url: "a.png", width: NaN}], ["invalid-descriptor"]);
+    });
+
+    test("rejects candidate objects with Infinity density", () => {
+        expectInvalidCodes([{url: "a.png", density: Infinity}], ["invalid-descriptor"]);
+    });
+
+    test("rejects candidate objects with negative width", () => {
+        expectInvalidCodes([{url: "a.png", width: -100}], ["invalid-descriptor"]);
+    });
+
+    test("rejects candidate objects with empty url", () => {
+        expectInvalidCodes([{url: "", width: 640}], ["invalid-url"]);
     });
 });
 
@@ -240,6 +291,15 @@ describe("stringify", () => {
         const candidates: SrcsetCandidate[] = [
             {url: "data:image/png;base64,AAAA", density: 1},
             {url: "/image@2x.png", density: 2},
+        ];
+
+        expect(parse(stringify(candidates))).toEqual(candidates);
+    });
+
+    test("round trips data URLs and query strings with commas", () => {
+        const candidates: SrcsetCandidate[] = [
+            {url: "data:image/png;base64,AAAA+BB==", density: 1},
+            {url: "/image.png?w=100,h=200&fmt=webp", density: 2},
         ];
 
         expect(parse(stringify(candidates))).toEqual(candidates);
