@@ -1,7 +1,13 @@
 {
   "name": "srcset-kit",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Tools for working with the HTML srcset attribute.",
+  "keywords": [
+    "srcset",
+    "responsive-images",
+    "html",
+    "typescript"
+  ],
   "type": "module",
   "license": "MIT",
   "author": {
@@ -11,7 +17,7 @@
   "homepage": "https://github.com/atldays/srcset-kit#readme",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/atldays/srcset-kit.git"
+    "url": "git+https://github.com/atldays/srcset-kit.git"
   },
   "bugs": {
     "url": "https://github.com/atldays/srcset-kit/issues"
