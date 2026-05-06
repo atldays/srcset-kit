@@ -43,6 +43,7 @@ describe("parse", () => {
         expect(parse("image.png 1e1x")).toEqual([{url: "image.png", density: 10}]);
         expect(parse("image.png 1E1x")).toEqual([{url: "image.png", density: 10}]);
         expect(parse("image.png 1e-1x")).toEqual([{url: "image.png", density: 0.1}]);
+        expect(parse("image.png 1.5e2x")).toEqual([{url: "image.png", density: 150}]);
         expect(parse("image.png 1.5e+2x")).toEqual([{url: "image.png", density: 150}]);
         expect(parse("image.png .5e1x")).toEqual([{url: "image.png", density: 5}]);
     });
@@ -201,6 +202,7 @@ describe("validate", () => {
         expectInvalidCodes("a.png -0x", ["invalid-descriptor"]);
         expectInvalidCodes("a.png -0e1x", ["invalid-descriptor"]);
         expectInvalidCodes("a.png -1e0x", ["invalid-descriptor"]);
+        expectInvalidCodes("a.png -1e1x", ["invalid-descriptor"]);
         expectInvalidCodes("a.png -1.5e+2x", ["invalid-descriptor"]);
     });
 
@@ -310,6 +312,19 @@ describe("stringify", () => {
 
     test("serializes decimal density candidates", () => {
         expect(stringify([{url: "image.png", density: 1.5}])).toBe("image.png 1.5x");
+    });
+
+    test("normalizes parsed exponent density descriptors", () => {
+        const integerDensity = parse("a.png 1e1x");
+        const fractionalDensity = parse("a.png 1e-1x");
+        const decimalDensity = parse("a.png 1.5e+2x");
+
+        expect(integerDensity).toEqual([{url: "a.png", density: 10}]);
+        expect(fractionalDensity).toEqual([{url: "a.png", density: 0.1}]);
+        expect(decimalDensity).toEqual([{url: "a.png", density: 150}]);
+        expect(stringify(integerDensity)).toBe("a.png 10x");
+        expect(stringify(fractionalDensity)).toBe("a.png 0.1x");
+        expect(stringify(decimalDensity)).toBe("a.png 150x");
     });
 
     test("serializes width candidates", () => {
