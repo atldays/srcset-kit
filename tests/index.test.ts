@@ -9,6 +9,10 @@ function expectInvalidCodes(input: string | SrcsetCandidate[], codes: string[]) 
     expect(result.errors.map(({code}) => code)).toEqual(codes);
 }
 
+function expectValid(input: string) {
+    expect(validate(input).valid).toBe(true);
+}
+
 describe("public API", () => {
     test("exports named functions", () => {
         expect(typeof parse).toBe("function");
@@ -33,6 +37,14 @@ describe("parse", () => {
 
     test("parses a single URL with decimal density", () => {
         expect(parse("image.png 1.5x")).toEqual([{url: "image.png", density: 1.5}]);
+    });
+
+    test("parses density descriptors with exponent notation", () => {
+        expect(parse("image.png 1e1x")).toEqual([{url: "image.png", density: 10}]);
+        expect(parse("image.png 1E1x")).toEqual([{url: "image.png", density: 10}]);
+        expect(parse("image.png 1e-1x")).toEqual([{url: "image.png", density: 0.1}]);
+        expect(parse("image.png 1.5e+2x")).toEqual([{url: "image.png", density: 150}]);
+        expect(parse("image.png .5e1x")).toEqual([{url: "image.png", density: 5}]);
     });
 
     test("parses multiple density candidates", () => {
@@ -107,6 +119,12 @@ describe("parse", () => {
         expect(parse("/image.png 1x", {strict: true})).toEqual([{url: "/image.png", density: 1}]);
     });
 
+    test("strict mode rejects syntactically valid non-positive density descriptors", () => {
+        expect(() => parse("image.png 0e1x", {strict: true})).toThrow(SrcsetValidationError);
+        expect(() => parse("image.png -1e0x", {strict: true})).toThrow(SrcsetValidationError);
+        expect(() => parse("image.png -0x", {strict: true})).toThrow(SrcsetValidationError);
+    });
+
     test("preserves URLs with fragments", () => {
         expect(parse("image.png#section 1x")).toEqual([{url: "image.png#section", density: 1}]);
     });
@@ -140,6 +158,22 @@ describe("validate", () => {
         }
     });
 
+    test("accepts authoring-valid density descriptors with exponent notation", () => {
+        for (const input of [
+            "a.png 1e1x",
+            "a.png 1E1x",
+            "a.png 1e-1x",
+            "a.png 1e+1x",
+            "a.png 1.5e2x",
+            "a.png 1.5e+2x",
+            "a.png .5e1x",
+            "a.png .5E+1x",
+            "a.png 0001e000x",
+        ]) {
+            expectValid(input);
+        }
+    });
+
     test("returns the detected descriptor type", () => {
         expect(validate("a.png").descriptor).toBe("none");
         expect(validate("a.png 1x, b.png 2x").descriptor).toBe("density");
@@ -155,9 +189,41 @@ describe("validate", () => {
         expectInvalidCodes("a.png 0w", ["invalid-descriptor"]);
         expectInvalidCodes("a.png -1x", ["invalid-descriptor"]);
         expectInvalidCodes("a.png 0x", ["invalid-descriptor"]);
+        expectInvalidCodes("a.png +1x", ["invalid-descriptor"]);
         expectInvalidCodes("a.png Infinityx", ["invalid-descriptor"]);
         expectInvalidCodes("a.png 1x 640w", ["multiple-descriptors"]);
         expectInvalidCodes("a.png 640w, b.png", ["mixed-descriptors"]);
+    });
+
+    test("rejects syntactically valid density descriptors whose values are not greater than zero", () => {
+        expectInvalidCodes("a.png 0e1x", ["invalid-descriptor"]);
+        expectInvalidCodes("a.png 0e-1x", ["invalid-descriptor"]);
+        expectInvalidCodes("a.png -0x", ["invalid-descriptor"]);
+        expectInvalidCodes("a.png -0e1x", ["invalid-descriptor"]);
+        expectInvalidCodes("a.png -1e0x", ["invalid-descriptor"]);
+        expectInvalidCodes("a.png -1.5e+2x", ["invalid-descriptor"]);
+    });
+
+    test("rejects density descriptors with invalid floating-point syntax", () => {
+        for (const input of [
+            "a.png +1x",
+            "a.png +1e1x",
+            "a.png 1.x",
+            "a.png .x",
+            "a.png 1ex",
+            "a.png 1e+x",
+            "a.png 1e-x",
+            "a.png e1x",
+            "a.png NaNx",
+            "a.png Infinityx",
+        ]) {
+            expectInvalidCodes(input, ["invalid-descriptor"]);
+        }
+    });
+
+    test("rejects density descriptors that overflow JavaScript finite numbers", () => {
+        expectInvalidCodes("a.png 1e309x", ["invalid-descriptor"]);
+        expectInvalidCodes("a.png 1.8e308x", ["invalid-descriptor"]);
     });
 
     test("requires width descriptors when descriptor is 'width'", () => {

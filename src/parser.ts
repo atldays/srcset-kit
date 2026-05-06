@@ -14,7 +14,7 @@ export type InternalCandidate = {
 };
 
 const ASCII_WHITESPACE = /[\t\n\f\r ]/u;
-const DENSITY_DESCRIPTOR = /^(\d+(?:\.\d+)?|\.\d+)x$/u;
+const DENSITY_DESCRIPTOR = /^(-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?)x$/u;
 const WIDTH_DESCRIPTOR = /^(\d+)w$/u;
 
 export function parseInternal(input: string): InternalCandidate[] {
